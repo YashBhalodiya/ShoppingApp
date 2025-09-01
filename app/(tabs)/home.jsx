@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useRouter } from "expo-router";
 import {
   FlatList,
   Image,
@@ -6,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,8 +32,24 @@ const categories = [
 ];
 
 export default function Home() {
+
+  const router = useRouter();
+
+  const onItemPressed = (item) => {
+    console.log("Item Pressed:", item);
+    router.push({
+      pathname: '/ProductDetailScreen',
+      params: {
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        imageId: item.id
+      }
+    });
+  }
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }} edges={["left","right"]}>
       <ScrollView style={{ flex: 1 }}>
         <View style={styles.searchContainer}>
           <TextInput style={styles.searchInput} placeholder="Search Product" />
@@ -52,14 +70,13 @@ export default function Home() {
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => (
             <View style={styles.categoryChip}>
-              <Text>{item}</Text>
+              <Text style={{ fontWeight: "bold" }}>{item}</Text>
             </View>
           )}
           style={{ marginLeft: 16, marginVertical: 16 }}
         />
 
         <View style={styles.hotSalesContainer}>
-          
           <View style={styles.hotSalesContainerHeader}>
             <Text>Hot Sales</Text>
             <Text>Scroll Indicator</Text>
@@ -68,19 +85,53 @@ export default function Home() {
           <FlatList
             horizontal
             data={hotSales}
-            showsHorizontalScrollIndicator= {false}
-            keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item, index) =>
+              item.id?.toString() ?? index.toString()
+            }
             renderItem={({ item }) => (
-              <View style={styles.card}>
-                <Image
-                  source={item.img}
-                  style={styles.productImage}
-                  resizeMode="contain"
-                />
-                <Text style={styles.productName}>{item.name}</Text>
-                <Text style={styles.productPrice}>${item.price}</Text>
-                <Text style={styles.shipping}>Free shipping</Text>
-              </View>
+              <TouchableOpacity onPress={() => onItemPressed(item)}>
+                <View style={styles.card}>
+                  <Image
+                    source={item.img}
+                    style={styles.productImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.productName}>{item.name}</Text>
+                  <Text style={styles.productPrice}>₹{item.price}</Text>
+                  <Text style={styles.shipping}>Free shipping</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+
+        <View style={styles.recentlyViewedContainer}>
+          <View style={styles.recentlyViewedContainerHeader}>
+            <Text>Recently Viewed</Text>
+            <Text>Scroll Indicator</Text>
+          </View>
+
+          <FlatList
+            horizontal
+            data={hotSales}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item, index) =>
+              item.id?.toString() ?? index.toString()
+            }
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => onItemPressed(item)}>
+                <View style={styles.card}>
+                  <Image
+                    source={item.img}
+                    style={styles.productImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.productName}>{item.name}</Text>
+                  <Text style={styles.productPrice}>₹{item.price}</Text>
+                  <Text style={styles.shipping}>Free shipping</Text>
+                </View>
+              </TouchableOpacity>
             )}
           />
         </View>
@@ -172,5 +223,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 66,
+  },
+  recentlyViewedContainer: {
+    marginTop: 16,
+  },
+  recentlyViewedContainerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    alignItems: "center",
   },
 });
