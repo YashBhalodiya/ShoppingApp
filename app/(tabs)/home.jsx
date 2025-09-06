@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -32,24 +33,62 @@ const categories = [
 ];
 
 export default function Home() {
-
   const router = useRouter();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      console.log("Starting fetch...");
+      setLoading(true);
+      const response = await fetch("https://fakestoreapi.com/products/");
+      console.log("Response status:", response.status);
+      const data = await response.json();
+      console.log("Data is fetched");
+      setProducts(data);
+    } catch (error) {
+      console.warn(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onItemPressed = (item) => {
     console.log("Item Pressed:", item);
     router.push({
-      pathname: '/ProductDetailScreen',
+      pathname: "/ProductDetailScreen",
       params: {
         id: item.id,
-        name: item.name,
+        title: item.title,
         price: item.price,
-        imageId: item.id
-      }
+        image: item.image,
+      },
     });
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text>Loading products...</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }} edges={["left","right"]}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: "#fff" }}
+      edges={["left", "right"]}
+    >
       <ScrollView style={{ flex: 1 }}>
         <View style={styles.searchContainer}>
           <TextInput style={styles.searchInput} placeholder="Search Product" />
@@ -84,7 +123,7 @@ export default function Home() {
 
           <FlatList
             horizontal
-            data={hotSales}
+            data={products}
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item, index) =>
               item.id?.toString() ?? index.toString()
@@ -93,11 +132,11 @@ export default function Home() {
               <TouchableOpacity onPress={() => onItemPressed(item)}>
                 <View style={styles.card}>
                   <Image
-                    source={item.img}
+                    source={{ uri: item.image }}
                     style={styles.productImage}
                     resizeMode="contain"
                   />
-                  <Text style={styles.productName}>{item.name}</Text>
+                  <Text style={styles.productName}>{item.title}</Text>
                   <Text style={styles.productPrice}>₹{item.price}</Text>
                   <Text style={styles.shipping}>Free shipping</Text>
                 </View>
