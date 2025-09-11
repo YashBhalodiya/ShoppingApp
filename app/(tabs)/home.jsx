@@ -87,7 +87,7 @@ export default function Home() {
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "#fff" }}
-      edges={["left", "right"]}
+      edges={["left", "right", 'top']}
     >
       <ScrollView style={{ flex: 1 }}>
         <View style={styles.searchContainer}>
